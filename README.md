@@ -1,2 +1,2 @@
-# ComputacaoEmbarcada
+# Computacao Embarcada
 Laboratorios para entrega
