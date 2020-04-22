@@ -54,6 +54,7 @@ typedef struct {
 	uint32_t colorOff;  // cor do botão desligado
 	uint32_t x;         // posicao x
 	uint32_t y;         // posicao y
+	void (*callback)(t_but);
 } t_but;
 
 QueueHandle_t xQueueTouch;
@@ -261,6 +262,20 @@ void draw_button_new(t_but but){
 	but.x+but.width/2, but.y+but.height/2);
 }
 
+void call_btn0(t_but *but){
+	but->status = !but->status;
+	draw_button_new(*but);
+}
+
+void call_btn1(t_but *but){
+	but->status = !but->status;
+	draw_button_new(*but);
+}
+
+void call_btn2(t_but *but){
+	but->status = !but->status;
+	draw_button_new(*but);
+}
 int process_touch(t_but botoes[], touchData touch, uint32_t n){
 	for (int i = 0; i < n; i++) {
 		if (touch.x >= botoes[i].x - botoes[i].width/2 && touch.x <= botoes[i].x + botoes[i].width/2) {
@@ -280,15 +295,15 @@ void task_lcd(void){
 
 	t_but but0 = {.width = 120, .height = 75, .border = 2,
 		.colorOn = COLOR_ORANGE, .colorOff = COLOR_BLACK,
-	.x = ILI9488_LCD_WIDTH/2, .y = 40, .status = 1 };
+	.x = ILI9488_LCD_WIDTH/2, .y = 40, .status = 1, .callback = &call_btn0 };
 	
 	t_but but1 = {.width = 120, .height = 75, .border = 2,
 		.colorOn = COLOR_GREEN, .colorOff = COLOR_BLACK,
-	.x = ILI9488_LCD_WIDTH/2, .y = 140, .status = 1 };
+	.x = ILI9488_LCD_WIDTH/2, .y = 140, .status = 1, .callback = &call_btn1 };
 	
 	t_but but2 = {.width = 120, .height = 75, .border = 2,
 		.colorOn = COLOR_RED, .colorOff = COLOR_BLACK,
-	.x = ILI9488_LCD_WIDTH/2, .y = 240, .status = 1 };
+	.x = ILI9488_LCD_WIDTH/2, .y = 240, .status = 1, .callback = &call_btn2 };
 	
 	t_but botoes[] = {but0, but1, but2};
 		
@@ -303,8 +318,9 @@ void task_lcd(void){
 		if (xQueueReceive( xQueueTouch, &(touch), ( TickType_t )  500 / portTICK_PERIOD_MS)) {
 			int b = process_touch(botoes, touch,3);
 			if(b >= 0){
-				botoes[b].status = !botoes[b].status;
-				draw_button_new(botoes[b]);
+				botoes[b].callback(&botoes[b]);
+// 				botoes[b].status = !botoes[b].status;
+// 				draw_button_new(botoes[b]);
 			}
 			
 			
